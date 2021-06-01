@@ -1,0 +1,76 @@
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
+plugins {
+    id 'war'
+    id 'jacoco'
+    id 'org.sonarqube' version '3.2.0'
+    id 'com.github.sahara3.tomcat-runner' version '0.2.1'
+}
+
+group 'com.example'
+description 'This is J2EE Web Application'
+sourceCompatibility = '1.8'
+task setVersion {
+    def now = LocalDateTime.now()
+    def pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm")
+    version = now.format(pattern).replaceAll('[-:]', '') + '-SNAPSHOT'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    structsVersion = '2.3.37'
+    lombokVersion = '1.18.12'
+    log4J2Version = '2.14.1'
+    servletVersion = '3.0.1'
+    jspVersion = '2.3.1'
+    jstlVersion = '1.2.2'
+}
+
+dependencies {
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    implementation "org.apache.struts:struts2-core:${structsVersion}"
+    implementation "org.apache.logging.log4j:log4j-core:${log4J2Version}"
+    implementation "javax.servlet:javax.servlet-api:${servletVersion}"
+    implementation "javax.servlet.jsp:javax.servlet.jsp-api:${jspVersion}"
+    implementation "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:${jstlVersion}"
+
+    testImplementation "org.apache.struts:struts2-junit-plugin:${structsVersion}"
+}
+
+tomcat {
+    webapp(project) {
+        setContextPath('')
+        setPort(7777)
+    }
+}
+
+sonarqube {
+    properties {
+        property 'sonar.projectKey', 'com.example:web-app'
+        property 'sonar.projectName', 'StrutsWebApp'
+        property 'sonar.host.url', 'http://127.0.0.1:9000/'
+        property 'sonar.sourceEncoding', 'UTF-8'
+        property 'sonar.core.codeCoveragePlugin', 'jacoco'
+        property 'sonar.coverage.exclusions', 'src/main/java/com/example/model/**'
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        csv.enabled false
+        html.enabled false
+    }
+}
+test.finalizedBy jacocoTestReport
