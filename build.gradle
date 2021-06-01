@@ -65,12 +65,3 @@ sonarqube {
         property 'sonar.coverage.exclusions', 'src/main/java/com/example/model/**'
     }
 }
-
-jacocoTestReport {
-    reports {
-        xml.enabled true
-        csv.enabled false
-        html.enabled false
-    }
-}
-test.finalizedBy jacocoTestReport
